@@ -1,0 +1,9 @@
+.tab
+  display: flex
+  justify-content: center
+.buttonList
+  width: 80%
+  display: inline-flex
+  align-items: stretch
+  justify-self: center
+  justify-content: center

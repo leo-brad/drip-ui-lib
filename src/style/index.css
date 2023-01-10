@@ -1,0 +1,6 @@
+@import "normalize.css"
+@import "@fortawesome/fontawesome-free"
+
+#root
+  font-family: Lato,'Helvetica Neue',Arial,Helvetica, sans-serif,
+    'Fa Brands','Fa Regular','Fa Solid', 'Montserrat Thin'
