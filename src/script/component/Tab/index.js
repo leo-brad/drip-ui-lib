@@ -1,11 +1,11 @@
 import React from 'react';
 import style from './index.module.css';
 import Button from '~/script/component/Button';
+import Dropdown from '~/script/component/Dropdown';
 
-// @TODO Left and right dropdown.
 class Tab extends React.Component {
   render() {
-    const data = ['left', 'button1', 'button2', 'button3', 'right'];
+    const data = ['left', 'instance1', 'instance2', 'instance3', 'right'];
     const buttons = data.map((e, k) => {
       let t;
       switch (k) {
@@ -27,6 +27,7 @@ class Tab extends React.Component {
         <div className={style.buttonList}>
           {buttons}
         </div>
+        <Dropdown />
       </div>
     );
   }

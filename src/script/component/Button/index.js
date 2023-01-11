@@ -7,12 +7,12 @@ class Button extends React.Component {
     let button;
     switch (t) {
       case 'f':
-        button = <button className={[style.tabButton, style.tabButtonFirst, style.active].join(' ')}>
+        button = <button className={[style.tabButton, style.firstTabButton, style.active].join(' ')}>
           {this.props.children}
         </button>
         break;
       case 'l':
-        button = <button className={[style.tabButton, style.tabButtonLast, style.active].join(' ')}>
+        button = <button className={[style.tabButton, style.lastTabButton].join(' ')}>
           {this.props.children}
         </button>
         break;
