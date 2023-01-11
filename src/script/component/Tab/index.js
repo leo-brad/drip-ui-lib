@@ -2,6 +2,7 @@ import React from 'react';
 import style from './index.module.css';
 import Button from '~/script/component/Button';
 
+// @TODO Left and right dropdown.
 class Tab extends React.Component {
   render() {
     const data = ['left', 'button1', 'button2', 'button3', 'right'];
