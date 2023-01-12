@@ -1,0 +1,10 @@
+.singleScreen
+  height: 100px
+  padding-left: 0
+  margin: 0
+  overflow-y: scroll
+  list-style-type: none
+  border: 1px solid #000
+.template
+  display: none
+.item
