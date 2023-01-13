@@ -23,12 +23,12 @@ class SingleScreen extends React.Component {
     const template = document.getElementById(id.toString() + 't');
     this.template = template;
 
-    const offsetTop = ul.offsetTop;
+    const scrollTop = ul.scrollTop;
     const height = ul.clientHeight;
     const status = {
       first: 0,
-      top: offsetTop,
-      bottom: offsetTop + height,
+      top: scrollTop,
+      bottom: scrollTop + height,
       scrollTop: ul.scrollTop,
     };
     this.status = status;
@@ -55,30 +55,29 @@ class SingleScreen extends React.Component {
         if (ul.scrollTop > scrollTop) {
           this.updateView('d');
           if (this.status.first >= 0) {
-            const bottom = this.getDomBottom(this.status.first);
-            if (bottom >= this.status.top) {
+            const bottom = this.getDomScrollBottom(this.status.first);
+            if (this.status.scrollTop >= bottom) {
               this.syncRemove('d');
-              this.status.first += 1;
+              if (this.status.first < this.props.data.length - 1) {
+                this.status.first += 1;
+              }
             }
           }
         } else if (ul.scrollTop < scrollTop) {
-          this.updateView('u');
           const {
             status: {
               last,
             }
           } = this;
+          this.updateView('u');
           if (last < this.props.data.length && last >= 0) {
-            console.log(1);
-            const li = document.getElementById(id.toString() + this.status.last);
-            //console.log(this.status.last);
-            //li.remove();
+            const li = this.getDom(last);
             if (li) {
-              //const top = li.offsetTop;
-              //if (top >= this.status.bottom) {
-                //this.syncRemove('u');
+              const top = li.offsetTop;
+              if (top >= this.status.bottom) {
+                this.syncRemove('u');
                 this.status.last -= 1;
-              //}
+              }
             }
           }
         }
@@ -125,7 +124,22 @@ class SingleScreen extends React.Component {
     }
   }
 
-  getDomBottom(key) {
+  initFirst() {
+    while (true) {
+      const {
+        status: {
+          first,
+        }
+      } = this;
+      const top = this.getDom(first).scrollTop;
+      if (top <= this.status.top) {
+        this.status.first -= 1;
+        break;
+      }
+    }
+  }
+
+  getDomOffsetBottom(key) {
     const dom = this.getDom(key);
     if (dom) {
       const offsetTop = dom.offsetTop;
@@ -134,11 +148,20 @@ class SingleScreen extends React.Component {
     }
   }
 
+  getDomScrollBottom(key) {
+    const dom = this.getDom(key);
+    if (dom) {
+      const scrollTop = dom.scrollTop;
+      const height = this.getHeight(dom, key);
+      return scrollTop+ height;
+    }
+  }
+
   downView() {
     const { status, } = this;
     const { last, } = status;
     if (last < this.props.data.length) {
-      const bottom = this.getDomBottom(last);
+      const bottom = this.getDomOffsetBottom(last);
       if (bottom <= status.bottom) {
         this.addDownItem(last + 1);
         this.downView();
@@ -157,17 +180,22 @@ class SingleScreen extends React.Component {
     const { status, } = this;
     const { first, } = status;
     if (first >= 0) {
-      const bottom = this.getDomBottom(first);
-      if (bottom <= status.top) {
-        this.addUpItem(first);
-        this.upView();
+      const dom = this.getDom(first);
+      if (dom) {
+        const top = dom.scrollTop;
+        if (top > status.top) {
+          this.addUpItem(first - 1);
+          this.upView();
+        }
       }
     }
   }
 
   addUpItem(k) {
     this.syncInsert(k, 'u');
-    this.status.first -= 1;
+    if (k >= 0) {
+      this.status.first = k;
+    }
   }
 
   syncRemove(t) {
@@ -177,24 +205,23 @@ class SingleScreen extends React.Component {
         const k = status.last;
         if (k < this.props.data.length) {
           const top = this.getDom(k).offsetTop;
-          if (top < this.status.bottom) {
+          if (top >= this.status.bottom) {
             const { id, } = this;
-            document.getElementById(id.toString() + k).remove();
+            this.getDom(k).remove();
+            this.doms[k] = undefined;
           }
         }
         break;
       }
       case 'd': {
         const { status, } = this;
-        const k = status.first - 2;
+        const k = status.first - 1;
         if (k >= 0) {
-          const bottom = this.getDomBottom(k);
-          if (bottom > this.status.top) {
+          const bottom = this.getDomScrollBottom(k);
+          if (this.status.scrollTop >= bottom) {
             const { id, } = this;
-            const li = document.getElementById(id.toString() + k)
-            if (li) {
-              li.remove();
-            }
+            const li = this.getDom(k).remove();
+            this.doms[k] = undefined;
           }
         }
         break;
