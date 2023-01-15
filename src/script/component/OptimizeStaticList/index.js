@@ -2,7 +2,7 @@ import React from 'react';
 import { renderToStaticMarkup, } from 'react-dom/server';
 import style from './index.module.css';
 
-class SingleScreen extends React.Component {
+class OptimizeStaticList extends React.Component {
   constructor(props) {
     super(props);
     const { data, } = this.props;
@@ -254,10 +254,10 @@ class SingleScreen extends React.Component {
     const { id, } = this;
     return([
       <div id={id.toString() + 't'} className={style.template}></div>,
-      <ul id={id} className={style.singleScreen}>
+      <ul id={id} className={style.optimizeStaticList}>
       </ul>
     ]);
   }
 }
 
-export default SingleScreen;
+export default OptimizeStaticList;

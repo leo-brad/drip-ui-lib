@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import SingleScreen from '~/script/component/SingleScreen';
+import OptimizeStaticList from '~/script/component/OptimizeStaticList';
 import '~/style/index.css';
 
 const data = [
@@ -15,4 +15,4 @@ const data = [
 ];
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<SingleScreen data={data} />);
+root.render(<OptimizeStaticList data={data} />);
