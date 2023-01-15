@@ -11,7 +11,11 @@ class Router extends React.Component {
   }
 
   addRoute(path, component) {
-    this.route[path] = component;
+    const { route, } = this;
+    if (route[path] === undefined) {
+      route[path] = component;
+    }
+    return route[path];
   }
 
   getPage(path) {
