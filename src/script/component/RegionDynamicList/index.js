@@ -115,21 +115,6 @@ class RegionDynamicList extends React.Component {
     return id + k;
   }
 
-  initFirst() {
-    while (true) {
-      const {
-        status: {
-          first,
-        },
-      } = this;
-      const top = this.getDom(this.getKey(first)).scrollTop;
-      if (top <= this.status.top) {
-        this.status.first -= 1;
-        break;
-      }
-    }
-  }
-
   getDomUpTop(key) {
     const dom = this.getDom(key);
     const top = dom.offsetTop;
