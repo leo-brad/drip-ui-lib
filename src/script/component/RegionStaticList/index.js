@@ -2,7 +2,7 @@ import React from 'react';
 import { renderToStaticMarkup, } from 'react-dom/server';
 import style from './index.module.css';
 
-class SectionStaticList extends React.Component {
+class RegionStaticList extends React.Component {
   constructor(props) {
     super(props);
     const { data, } = this.props;
@@ -58,19 +58,15 @@ class SectionStaticList extends React.Component {
             this.syncRemove('d');
           }
         } else if (ul.scrollTop < scrollTop) {
-          //const {
-            //status: {
-              //last,
-            //}
-          //} = this;
-          //this.updateView('u');
-          //if (last < this.props.data.length && last >= 0) {
-            //const top = this.getDomTop(this.getKey(last));
-            //if (top >= this.status.bottom) {
-              //this.syncRemove('u');
-              //this.status.last -= 1;
-            //}
-          //}
+          const {
+            status: {
+              last,
+            }
+          } = this;
+          this.updateView('u');
+          if (last < this.props.data.length) {
+            this.syncRemove('u');
+          }
         }
         this.status.scrollTop = ul.scrollTop;
       }
@@ -132,6 +128,19 @@ class SectionStaticList extends React.Component {
     }
   }
 
+  getDomUpTop(key) {
+    const dom = this.getDom(key);
+    const top = dom.offsetTop;
+    return top;
+  }
+
+  getDomUpBottom(key) {
+    const top = this.getDomUpTop(key);
+    const dom = this.getDom(key);
+    const height = this.getHeight(dom, key);
+    return top + height;
+  }
+
   getDomDownBottom(key) {
     const top = this.getDomDownTop(key);
     const dom = this.getDom(key);
@@ -174,8 +183,8 @@ class SectionStaticList extends React.Component {
     const { status, } = this;
     const { first, } = status;
     if (first >= 0) {
-      const bottom = this.getDomBottom(this.getKey(first));
-      if (bottom <= status.top) {
+      const bottom = this.getDomUpBottom(this.getKey(first));
+      if (bottom >= status.top) {
         if (first - 1 >= 0) {
           this.addUpItem(first - 1);
           this.upView();
@@ -197,10 +206,12 @@ class SectionStaticList extends React.Component {
         const { status, } = this;
         const k = status.last;
         if (k < this.props.data.length) {
-          const top = this.getDomTop(this.getKey(k));
-          if (top >= this.status.bottom) {
+          const top = this.getDomUpTop(this.getKey(k));
+          const { id, ul, } = this;
+          if (top >= this.status.scrollTop + this.getHeight(ul, id)) {
             this.getDom(this.getKey(k)).remove();
             this.doms[this.getKey(k)] = undefined;
+            this.status.last = k - 1;
           }
         }
         break;
@@ -246,10 +257,10 @@ class SectionStaticList extends React.Component {
     const { id, } = this;
     return([
       <div id={id + 't'} className={style.template}></div>,
-      <ul id={id} className={style.optimizeStaticList}>
+      <ul id={id} className={style.regionStaticList}>
       </ul>
     ]);
   }
 }
 
-export default SectionStaticList;
+export default RegionStaticList;

@@ -4,15 +4,12 @@ import ReactDOM from 'react-dom/client';
 import { createPortal, } from 'react-dom';
 import { renderToStaticMarkup, } from 'react-dom/server';
 
-class OptimizeDynamicList extends React.Component {
+class RegionDynamicList extends React.Component {
   constructor(props) {
     super(props);
     const { data, } = this.props;
-    this.state = {
-      data: [],
-    };
 
-    const id = new Date().getTime();
+    const id = new Date().getTime().toString();
     this.id = id;
 
     this.doms = [];
@@ -25,7 +22,7 @@ class OptimizeDynamicList extends React.Component {
     const ul = document.getElementById(id);
     this.ul = ul;
 
-    const template = document.getElementById(id.toString() + 't');
+    const template = document.getElementById(id + 't');
     this.template = template;
 
     const scrollTop = ul.scrollTop;
@@ -60,13 +57,7 @@ class OptimizeDynamicList extends React.Component {
         if (ul.scrollTop > scrollTop) {
           this.updateView('d');
           if (this.status.first >= 0) {
-            const bottom = this.getDomScrollBottom(this.status.first);
-            if (this.status.scrollTop >= bottom) {
-              this.syncRemove('d');
-              if (this.status.first < this.props.data.length - 1) {
-                this.status.first += 1;
-              }
-            }
+            this.syncRemove('d');
           }
         } else if (ul.scrollTop < scrollTop) {
           const {
@@ -75,15 +66,8 @@ class OptimizeDynamicList extends React.Component {
             }
           } = this;
           this.updateView('u');
-          if (last < this.props.data.length && last >= 0) {
-            const li = this.getDom(last);
-            if (li) {
-              const top = li.offsetTop;
-              if (top >= this.status.bottom) {
-                this.syncRemove('u');
-                this.status.last -= 1;
-              }
-            }
+          if (last < this.props.data.length) {
+            this.syncRemove('u');
           }
         }
         this.status.scrollTop = ul.scrollTop;
@@ -95,20 +79,17 @@ class OptimizeDynamicList extends React.Component {
     switch (t) {
       case 'd':
         this.downView();
-        this.addDownItem(this.status.last + 1);
         break;
       case 'u':
         this.upView();
-        this.addUpItem(this.status.first - 1);
         break;
     }
   }
 
   getDom(key) {
     const { id, doms, } = this;
-    const k = id.toString() + key;
     if (doms[key] === undefined) {
-      doms[key] = document.getElementById(k);
+      doms[key] = document.getElementById(key);
     }
     return doms[key];
   }
@@ -129,14 +110,19 @@ class OptimizeDynamicList extends React.Component {
     }
   }
 
+  getKey(k) {
+    const { id, } = this;
+    return id + k;
+  }
+
   initFirst() {
     while (true) {
       const {
         status: {
           first,
-        }
+        },
       } = this;
-      const top = this.getDom(first).scrollTop;
+      const top = this.getDom(this.getKey(first)).scrollTop;
       if (top <= this.status.top) {
         this.status.first -= 1;
         break;
@@ -144,21 +130,33 @@ class OptimizeDynamicList extends React.Component {
     }
   }
 
-  getDomOffsetBottom(key) {
+  getDomUpTop(key) {
+    const dom = this.getDom(key);
+    const top = dom.offsetTop;
+    return top;
+  }
+
+  getDomUpBottom(key) {
+    const top = this.getDomUpTop(key);
+    const dom = this.getDom(key);
+    const height = this.getHeight(dom, key);
+    return top + height;
+  }
+
+  getDomDownBottom(key) {
+    const top = this.getDomDownTop(key);
+    const dom = this.getDom(key);
+    const height = this.getHeight(dom, key);
+    return top + height;
+  }
+
+  getDomDownTop(key) {
     const dom = this.getDom(key);
     if (dom) {
       const offsetTop = dom.offsetTop;
-      const height = this.getHeight(dom, key);
-      return offsetTop + height;
-    }
-  }
-
-  getDomScrollBottom(key) {
-    const dom = this.getDom(key);
-    if (dom) {
-      const scrollTop = dom.scrollTop;
-      const height = this.getHeight(dom, key);
-      return scrollTop+ height;
+      const { id, } = this;
+      const scrollTop = this.getDom(id).scrollTop;
+      return offsetTop - scrollTop;
     }
   }
 
@@ -166,10 +164,12 @@ class OptimizeDynamicList extends React.Component {
     const { status, } = this;
     const { last, } = status;
     if (last < this.props.data.length) {
-      const bottom = this.getDomOffsetBottom(last);
-      if (bottom <= status.bottom) {
-        this.addDownItem(last + 1);
-        this.downView();
+      const top = this.getDomDownTop(this.getKey(last));
+      if (top <= status.bottom) {
+        if (last + 1 < this.props.data.length) {
+          this.addDownItem(last + 1);
+          this.downView();
+        }
       }
     }
   }
@@ -185,10 +185,9 @@ class OptimizeDynamicList extends React.Component {
     const { status, } = this;
     const { first, } = status;
     if (first >= 0) {
-      const dom = this.getDom(first);
-      if (dom) {
-        const top = dom.scrollTop;
-        if (top > status.top) {
+      const bottom = this.getDomUpBottom(this.getKey(first));
+      if (bottom >= status.top) {
+        if (first - 1 >= 0) {
           this.addUpItem(first - 1);
           this.upView();
         }
@@ -209,24 +208,25 @@ class OptimizeDynamicList extends React.Component {
         const { status, } = this;
         const k = status.last;
         if (k < this.props.data.length) {
-          const top = this.getDom(k).offsetTop;
-          if (top >= this.status.bottom) {
-            const { id, } = this;
-            this.getDom(k).remove();
-            this.doms[k] = undefined;
+          const top = this.getDomUpTop(this.getKey(k));
+          const { id, ul, } = this;
+          if (top >= this.status.scrollTop + this.getHeight(ul, id)) {
+            this.getDom(this.getKey(k)).remove();
+            this.doms[this.getKey(k)] = undefined;
+            this.status.last = k - 1;
           }
         }
         break;
       }
       case 'd': {
         const { status, } = this;
-        const k = status.first - 1;
+        const k = status.first;
         if (k >= 0) {
-          const bottom = this.getDomScrollBottom(k);
+          const bottom = this.getDomDownBottom(this.getKey(k));
           if (this.status.scrollTop >= bottom) {
-            const { id, } = this;
-            const li = this.getDom(k).remove();
-            this.doms[k] = undefined;
+            this.getDom(this.getKey(k)).remove();
+            this.doms[this.getKey(k)] = undefined;
+            this.status.first = k + 1;
           }
         }
         break;
@@ -238,7 +238,7 @@ class OptimizeDynamicList extends React.Component {
     const e = this.props.data[i];
     if (e) {
       const { id, template, ul, } = this;
-      const k = id.toString() + i;
+      const k = id + i;
       const component = <li id={k} className={style.item} key={i}>{e}</li>;
       template.innerHTML = renderToStaticMarkup(component);
       const li = document.getElementById(k);
@@ -250,19 +250,19 @@ class OptimizeDynamicList extends React.Component {
           ul.prepend(li);
           break;
       }
+      createPortal(li, ul);
       template.innerHTML = '';
-      createPortal(component, document.getElementById(k));
     }
   }
 
   render() {
     const { id, } = this;
     return([
-      <div id={id.toString() + 't'} className={style.template}></div>,
-      <ul id={id} className={style.optimizeDynamicList}>
+      <div id={id + 't'} className={style.template}></div>,
+      <ul id={id} className={style.regionDynamicList}>
       </ul>
     ]);
   }
 }
 
-export default OptimizeDynamicList;
+export default RegionDynamicList;
