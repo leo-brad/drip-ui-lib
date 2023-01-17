@@ -1,6 +1,7 @@
 import React from 'react';
 import { renderToStaticMarkup, } from 'react-dom/server';
 import style from './index.module.css';
+import Template from '~/script/component/Template';
 
 class RegionStaticList extends React.Component {
   constructor(props) {
@@ -241,9 +242,8 @@ class RegionStaticList extends React.Component {
   render() {
     const { id, } = this;
     return([
-      <div id={id + 't'} className={style.template}></div>,
-      <ul id={id} className={style.regionStaticList}>
-      </ul>
+      <Template id={id + 't'} />,
+      <ul id={id} className={style.regionStaticList} />,
     ]);
   }
 }

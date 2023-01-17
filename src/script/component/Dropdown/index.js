@@ -21,7 +21,6 @@ class Dropdown extends React.Component {
     const { id, } = this;
     const dom = document.getElementById(id);
     this.dom = dom;
-    this.close();
   }
 
   transition() {

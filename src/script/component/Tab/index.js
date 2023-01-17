@@ -4,15 +4,23 @@ import Button from '~/script/component/Button';
 import Dropdown from '~/script/component/Dropdown';
 
 class Tab extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      instances: ['left', 'instance1', 'instance2', 'instance3', 'right'],
+    };
+  }
+
   render() {
-    const data = ['left', 'instance1', 'instance2', 'instance3', 'right'];
-    const buttons = data.map((e, k) => {
+    const { instances, } = this.state;
+    const buttons = instances.map((e, k) => {
       let t;
       switch (k) {
         case 0:
           t = 'f';
           break;
-        case data.length - 1:
+        case instances.length - 1:
           t = 'l';
           break
         default:

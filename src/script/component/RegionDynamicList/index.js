@@ -1,8 +1,8 @@
 import React from 'react';
-import style from './index.module.css';
-import ReactDOM from 'react-dom/client';
 import { createPortal, } from 'react-dom';
 import { renderToStaticMarkup, } from 'react-dom/server';
+import style from './index.module.css';
+import Template from '~/script/component/Template';
 
 class RegionDynamicList extends React.Component {
   constructor(props) {
@@ -243,9 +243,8 @@ class RegionDynamicList extends React.Component {
   render() {
     const { id, } = this;
     return([
-      <div id={id + 't'} className={style.template}></div>,
-      <ul id={id} className={style.regionDynamicList}>
-      </ul>
+      <Template id={id + 't'} />,
+      <ul id={id} className={style.regionDynamicList} />,
     ]);
   }
 }
