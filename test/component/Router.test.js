@@ -1,4 +1,4 @@
-import 'react-dom/server';
+import { renderToStaticMarkup, } from 'react-dom/server';
 import { describe, expect, test, } from '@jest/globals';
 import React from 'react';
 import Router from '~/script/component/Router';
@@ -6,7 +6,6 @@ import Router from '~/script/component/Router';
 describe('[component] Router', () => {
   test('router render result should correct.', () => {
     const router = <Router />;
-    //router.addRoute('/', <div>Home</div>);
-    expect(ReactDOM.renderToStaticMarkup(<Router />)).toBe('ifsadfasd');
+    expect(renderToStaticMarkup(<Router />)).toBe('ifsadfasd');
   });
 });
