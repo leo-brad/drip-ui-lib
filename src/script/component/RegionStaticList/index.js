@@ -1,7 +1,6 @@
 import React from 'react';
-import { renderToStaticMarkup, } from 'react-dom/server';
 import style from './index.module.css';
-import Template from '~/script/component/Template';
+import renderToNode from '~/script/lib/renderToNode';
 
 class RegionStaticList extends React.Component {
   constructor(props) {
@@ -20,9 +19,6 @@ class RegionStaticList extends React.Component {
 
     const ul = document.getElementById(id);
     this.ul = ul;
-
-    const template = document.getElementById(id + 't');
-    this.template = template;
 
     const scrollTop = ul.scrollTop;
     const height = ul.clientHeight;
@@ -221,12 +217,9 @@ class RegionStaticList extends React.Component {
   syncInsert(i, t) {
     const e = this.props.data[i];
     if (e) {
-      const { id, template, ul, } = this;
+      const { id, ul, } = this;
       const k = id + i;
-      template.innerHTML = renderToStaticMarkup(
-        <li id={k} className={style.item} key={i}>{e}</li>
-      );
-      const li = document.getElementById(k);
+      const li = renderToNode(<li id={k} className={style.item} key={i}>{e}</li>);
       switch (t) {
         case 'd':
           ul.append(li);
@@ -235,16 +228,14 @@ class RegionStaticList extends React.Component {
           ul.prepend(li);
           break;
       }
-      template.innerHTML = '';
     }
   }
 
   render() {
     const { id, } = this;
-    return([
-      <Template id={id + 't'} />,
-      <ul id={id} className={style.regionStaticList} />,
-    ]);
+    return(
+      <ul id={id} className={style.regionStaticList} />
+    );
   }
 }
 

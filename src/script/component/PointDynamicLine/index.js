@@ -1,8 +1,9 @@
 import React from 'react';
+import { createPortal, } from 'react-dom';
 import style from './index.module.css';
 import renderToNode from '~/script/lib/renderToNode';
 
-class PointStaticLine extends React.Component {
+class PointDynamiceLine extends React.Component {
   constructor(props) {
     super(props);
     const { data, } = this.props;
@@ -138,6 +139,7 @@ class PointStaticLine extends React.Component {
         }
       }
       this.li = li;
+      createPortal(li, ul);
       this.isUpdate = true;
     } else {
       this.isUpdate = false;
@@ -147,9 +149,9 @@ class PointStaticLine extends React.Component {
   render() {
     const { id, } = this;
     return(
-      <ul id={id} className={style.pointStaticLine} />
+      <ul id={id} className={style.pointDynamicLine} />
     );
   }
 }
 
-export default PointStaticLine;
+export default PointDynamiceLine;

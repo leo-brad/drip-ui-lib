@@ -1,8 +1,7 @@
 import React from 'react';
 import { createPortal, } from 'react-dom';
-import { renderToStaticMarkup, } from 'react-dom/server';
 import style from './index.module.css';
-import Template from '~/script/component/Template';
+import renderToNode from '~/script/lib/renderToNode';
 
 class RegionDynamicList extends React.Component {
   constructor(props) {
@@ -21,9 +20,6 @@ class RegionDynamicList extends React.Component {
 
     const ul = document.getElementById(id);
     this.ul = ul;
-
-    const template = document.getElementById(id + 't');
-    this.template = template;
 
     const scrollTop = ul.scrollTop;
     const height = ul.clientHeight;
@@ -222,11 +218,10 @@ class RegionDynamicList extends React.Component {
   syncInsert(i, t) {
     const e = this.props.data[i];
     if (e) {
-      const { id, template, ul, } = this;
+      const { id, ul, } = this;
       const k = id + i;
       const component = <li id={k} className={style.item} key={i}>{e}</li>;
-      template.innerHTML = renderToStaticMarkup(component);
-      const li = document.getElementById(k);
+      const li = renderToNode(component);
       switch (t) {
         case 'd':
           ul.append(li);
@@ -236,16 +231,14 @@ class RegionDynamicList extends React.Component {
           break;
       }
       createPortal(li, ul);
-      template.innerHTML = '';
     }
   }
 
   render() {
     const { id, } = this;
-    return([
-      <Template id={id + 't'} />,
-      <ul id={id} className={style.regionDynamicList} />,
-    ]);
+    return(
+      <ul id={id} className={style.regionDynamicList} />
+    );
   }
 }
 

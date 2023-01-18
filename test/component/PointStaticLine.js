@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import '~/style/index.css';
-import PointDynamicLine from '~/script/component/PointDynamicLine';
+import PointStaticLine from '~/script/component/PointStaticLine';
 
 const data = [
   'list1',
@@ -16,4 +16,4 @@ const data = [
 ];
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<PointDynamicLine data={data} />);
+root.render(<PointStaticLine data={data} />);

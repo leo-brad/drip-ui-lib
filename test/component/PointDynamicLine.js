@@ -17,3 +17,4 @@ const data = [
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<PointDynamicLine data={data} />);
+
