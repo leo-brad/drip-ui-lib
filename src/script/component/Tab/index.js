@@ -1,6 +1,6 @@
 import React from 'react';
 import style from './index.module.css';
-import Button from '~/script/component/Button';
+import TabButton from '~/script/component/TabButton';
 import Dropdown from '~/script/component/Dropdown';
 import PointDynamicLine from '~/script/component/PointDynamicLine';
 
@@ -28,7 +28,7 @@ class Tab extends React.Component {
           break;
       }
       return(
-        <Button t={t} key={k}>{e}</Button>
+        <TabButton t={t} key={k}>{e}</TabButton>
       );
     });
     const a = <PointDynamicLine />;

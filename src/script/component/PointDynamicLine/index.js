@@ -21,14 +21,6 @@ class PointDynamiceLine extends React.Component {
     this.setLocation(0);
   }
 
-  setItem(item) {
-    this.item = item;
-  }
-
-  setList(list) {
-    this.list = list;
-  }
-
   setLocation(location) {
     this.location = location;
     this.count = 0;
@@ -131,8 +123,7 @@ class PointDynamiceLine extends React.Component {
     const d = this.props.data[idx];
     if (d !== undefined) {
       this.idx = idx;
-      const { item, } = this;
-      const li = renderToNode(item);
+      const li = renderToNode(<li id={this.getKey(idx)} key={idx}>{d}</li>);
       switch (t) {
         case 2: {
           ul.append(li);
@@ -158,7 +149,7 @@ class PointDynamiceLine extends React.Component {
   }
 
   render() {
-    const { id, list, } = this;
+    const { id, } = this;
     return(
       <ul id={id} className={style.pointDynamicLine} />
     );
