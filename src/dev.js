@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import '~/style/index.css';
-import TabButton from '~/script/component/TabButton';
+import TabBanner from '~/script/component/TabBanner';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<TabButton />);
+root.render(<TabBanner />);
