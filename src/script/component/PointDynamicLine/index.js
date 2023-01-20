@@ -22,43 +22,58 @@ class PointDynamiceLine extends React.Component {
   }
 
   setLocation(location) {
+    const { ul, } = this;
+    for (const child of ul.children) {
+      child.remove();
+    }
     this.location = location;
     this.count = 0;
     this.addItem(2);
     this.count += 1;
-    const { ul, } = this;
     ul.style.visibility = 'hidden';
     while (true) {
       const { count, } = this;
       this.r = count % 2;
       const { r, } = this;
+      if (count > this.data.length - 1) {
+        break;
+      }
       this.addItem(r);
-      this.count += 1;
       if (this.detectEdge()) {
         break;
       }
+      this.count += 1;
     }
     ul.style.visibility = 'visible';
   }
 
   getDom(key) {
-    const { doms, } = this;
-    if (doms[key] === undefined) {
-      doms[key] = document.getElementById(key);
+    const { widths, } = this;
+    if (widths[key] === undefined) {
+      const dom = this.getDom(key);
+      if (dom) {
+        widths[key] = dom.clientWidth;
+      }
     }
-    return doms[key];
+    return widths[key];
   }
 
   getWidth(key) {
     const { widths, } = this;
     if (widths[key] === undefined) {
-      widths[key] = this.getDom(key).clientWidth;
+      const dom = this.getDom(key);
+      if (dom) {
+        widths[key] = dom.clientWidth;
+      }
     }
     return widths[key];
   }
 
   getLeft(key) {
-    return this.getDom(key).offsetLeft;
+    const dom = this.getDom(key);
+    if (dom) {
+      return dom.offsetLeft;
+    }
   }
 
   getRight(key) {
@@ -78,18 +93,23 @@ class PointDynamiceLine extends React.Component {
     if (idx !== undefined && isUpdate) {
       switch (r) {
         case 1: {
-          const right = this.getRight(this.getKey(idx));
-          if (right > this.width) {
-            ans = true;
-            li.remove();
+          const { right, } = this;
+          if (right !== undefined) {
+            const right = this.getRight(this.getKey(idx));
+            if (right > this.width) {
+              ans = true;
+              li.remove();
+            }
           }
           break;
         }
         case 0: {
-          const left = this.getLeft(this.getKey(idx));
-          if (left < 0) {
-            ans = true;
-            li.remove();
+          if (left !== undefined) {
+            const left = this.getLeft(this.getKey(idx));
+            if (left < 0) {
+              ans = true;
+              li.remove();
+            }
           }
           break;
         }
@@ -118,30 +138,36 @@ class PointDynamiceLine extends React.Component {
   }
 
   addItem(t) {
-    const { ul, template, id, } = this;
+    const { ul, id, } = this;
     const idx = this.getIndex();
-    const d = this.props.data[idx];
+    const d = this.data[idx];
     if (d !== undefined) {
       this.idx = idx;
-      const li = renderToNode(<li id={this.getKey(idx)} key={idx}>{d}</li>);
+      const id = this.getKey(idx);
+      const component = <i={d}>{d}</div>;
+      const node = renderToNode(<li id={id} />);
       switch (t) {
         case 2: {
-          ul.append(li);
+          ul.append(node);
           break;
         }
         case 1: {
-          ul.append(li);
+          ul.append(node);
           this.right = idx;
           break;
         }
         case 0: {
-          ul.prepend(li);
+          ul.prepend(node);
           this.left = idx;
           break;
         }
       }
-      this.li = li;
-      createPortal(li, ul);
+      this.li = document.getElementById(id);
+      const { li, } = this;
+      if (li) {
+        const root = ReactDOM.createRoot(li);
+        root.render(component);
+      }
       this.isUpdate = true;
     } else {
       this.isUpdate = false;
