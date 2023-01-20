@@ -1,9 +1,6 @@
 import React from 'react';
-import style from './index.module.css';
-import PointLine from '~/script/component/PointLine';
-import renderToNode from '~/script/lib/renderToNode';
 
-class PointStaticLine extends PointLine {
+class PointLine extends React.Component {
   constructor(props) {
     super(props);
     const { data, } = this.props;
@@ -22,21 +19,27 @@ class PointStaticLine extends PointLine {
   }
 
   setLocation(location) {
+    const { ul, } = this;
+    for (const child of ul.children) {
+      child.remove();
+    }
     this.location = location;
     this.count = 0;
     this.addItem(2);
     this.count += 1;
-    const { ul, } = this;
     ul.style.visibility = 'hidden';
     while (true) {
       const { count, } = this;
       this.r = count % 2;
       const { r, } = this;
+      if (count > this.props.data.length - 1) {
+        break;
+      }
       this.addItem(r);
-      this.count += 1;
       if (this.detectEdge()) {
         break;
       }
+      this.count += 1;
     }
     ul.style.visibility = 'visible';
   }
@@ -52,13 +55,19 @@ class PointStaticLine extends PointLine {
   getWidth(key) {
     const { widths, } = this;
     if (widths[key] === undefined) {
-      widths[key] = this.getDom(key).clientWidth;
+      const dom = this.getDom(key);
+      if (dom) {
+        widths[key] = dom.clientWidth;
+      }
     }
     return widths[key];
   }
 
   getLeft(key) {
-    return this.getDom(key).offsetLeft;
+    const dom = this.getDom(key);
+    if (dom) {
+      return dom.offsetLeft;
+    }
   }
 
   getRight(key) {
@@ -78,18 +87,23 @@ class PointStaticLine extends PointLine {
     if (idx !== undefined && isUpdate) {
       switch (r) {
         case 1: {
-          const right = this.getRight(this.getKey(idx));
-          if (right > this.width) {
-            ans = true;
-            li.remove();
+          const { right, } = this;
+          if (right !== undefined) {
+            const right = this.getRight(this.getKey(idx));
+            if (right > this.width) {
+              ans = true;
+              li.remove();
+            }
           }
           break;
         }
         case 0: {
-          const left = this.getLeft(this.getKey(idx));
-          if (left < 0) {
-            ans = true;
-            li.remove();
+          if (left !== undefined) {
+            const left = this.getLeft(this.getKey(idx));
+            if (left < 0) {
+              ans = true;
+              li.remove();
+            }
           }
           break;
         }
@@ -116,41 +130,6 @@ class PointStaticLine extends PointLine {
     }
     return ans;
   }
-
-  addItem(t) {
-    const { ul, template, id, } = this;
-    const idx = this.getIndex();
-    const d = this.props.data[idx];
-    if (d !== undefined) {
-      this.idx = idx;
-      const li = renderToNode(<li id={this.getKey(idx)} key={idx}>{d}</li>);
-      switch (t) {
-        case 2: {
-          ul.append(li);
-          break;
-        }
-        case 1: {
-          ul.append(li);
-          break;
-        }
-        case 0: {
-          ul.prepend(li);
-          break;
-        }
-      }
-      this.li = li;
-      this.isUpdate = true;
-    } else {
-      this.isUpdate = false;
-    }
-  }
-
-  render() {
-    const { id, } = this;
-    return(
-      <ul id={id} className={style.pointStaticLine} />
-    );
-  }
 }
 
-export default PointStaticLine;
+export default PointLine;
