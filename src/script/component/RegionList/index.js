@@ -11,6 +11,7 @@ class RegionList extends React.Component {
 
     this.doms = [];
     this.heights = [];
+    this.dealScroll = this.dealScroll.bind(this);
   }
 
   componentDidMount() {
@@ -33,40 +34,41 @@ class RegionList extends React.Component {
     this.updateView('d');
   }
 
+  async dealScroll(e) {
+    await new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve();
+      }, 1000 / 29);
+    });
+    const {
+      status: {
+        scrollTop,
+      },
+      id,
+      ul,
+    } = this;
+    if (ul.scrollTop > scrollTop) {
+      this.updateView('d');
+      if (this.status.first >= 0) {
+        this.syncRemove('d');
+      }
+    } else if (ul.scrollTop < scrollTop) {
+      const {
+        status: {
+          last,
+        }
+      } = this;
+      this.updateView('u');
+      if (last < this.props.data.length) {
+        this.syncRemove('u');
+      }
+    }
+    this.status.scrollTop = ul.scrollTop;
+  }
+
   bindEvent() {
     const { ul, } = this;
-    let f = true;
-    ul.addEventListener('scroll', (e) => {
-      if (f = true) {
-        f = false;
-        setTimeout(() => {
-          f = true;
-        }, 1000 / 29);
-        const {
-          status: {
-            scrollTop,
-          },
-          id,
-        } = this;
-        if (ul.scrollTop > scrollTop) {
-          this.updateView('d');
-          if (this.status.first >= 0) {
-            this.syncRemove('d');
-          }
-        } else if (ul.scrollTop < scrollTop) {
-          const {
-            status: {
-              last,
-            }
-          } = this;
-          this.updateView('u');
-          if (last < this.props.data.length) {
-            this.syncRemove('u');
-          }
-        }
-        this.status.scrollTop = ul.scrollTop;
-      }
-    });
+    ul.addEventListener('scroll', this.dealScroll);
   }
 
   updateView(t) {
