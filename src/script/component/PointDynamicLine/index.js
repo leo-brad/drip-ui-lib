@@ -10,8 +10,67 @@ class PointDynamiceLine extends PointLine {
     super(props);
     this.empty = 0;
     this.roots = {};
-    this.checkButtons = this.checkDivs.bind(this);
+    this.checkDivs = this.checkDivs.bind(this);
     this.checkEmpty = this.checkEmpty.bind(this);
+    this.checkDom = this.checkDom.bind(this);
+    this.checkDiv = this.checkDiv.bind(this);
+  }
+
+  clean() {
+    this.widths = {};
+    this.doms = {};
+  }
+
+  checkDom(key) {
+    const dom = document.getElementById(key);
+    let ans = false;
+    if (dom !== null) {
+      ans = true;
+    }
+    return ans;
+  }
+
+  async getDom(key) {
+    const { doms, } = this;
+    if (doms[key] === undefined) {
+      await check(() => this.checkDom(key));
+      doms[key] = document.getElementById(key);
+    }
+    return doms[key];
+  }
+
+  checkDiv(li) {
+    const button = li.children[0];
+    let ans = false;
+    if (button && button.tagName === 'div'.toUpperCase()) {
+      ans = true;
+    }
+    return ans;
+  }
+
+  async getWidth(key) {
+    const { widths, } = this;
+    if (widths[key] === undefined) {
+      const dom = await this.getDom(key);
+      if (dom) {
+        await check(() => this.checkDiv(dom));
+        widths[key] = dom.clientWidth;
+      }
+    }
+    return widths[key];
+  }
+
+  async getLeft(key) {
+    const dom = await this.getDom(key);
+    if (dom) {
+      return dom.offsetLeft;
+    }
+  }
+
+  async getRight(key) {
+    const width = await this.getWidth(key);
+    const left = await this.getLeft(key);
+    return left + width;
   }
 
   checkEmpty() {
@@ -117,7 +176,7 @@ class PointDynamiceLine extends PointLine {
       }
       this.count += 1;
     }
-    await check(this.checkButtons);
+    await check(this.checkDivs);
     this.clearEmpty();
     ul.style.visibility = 'visible';
   }
@@ -184,7 +243,6 @@ class PointDynamiceLine extends PointLine {
       root.render(component);
     }
   }
-
 
   render() {
     const { id, } = this;
