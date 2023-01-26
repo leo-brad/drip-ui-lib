@@ -2,49 +2,189 @@ import React from 'react';
 import style from './index.module.css';
 import PointLine from '~/script/component/PointLine';
 import renderToNode from '~/script/lib/renderToNode';
+import check from '~/script/lib/check';
 import ReactDOM from 'react-dom/client';
 
 class PointDynamiceLine extends PointLine {
   constructor(props) {
     super(props);
+    this.empty = 0;
+    this.roots = {};
+    this.checkButtons = this.checkDivs.bind(this);
+    this.checkEmpty = this.checkEmpty.bind(this);
+  }
+
+  checkEmpty() {
+    const { ul, } = this;
+    return ul.children.length === 0;
+  }
+
+  checkDivs() {
+    const { id, } = this;
+    const ul = document.getElementById(id);
+    let ans = false;
+    if (ul) {
+      let time = 0;
+      for (let li of ul.children) {
+        const child = li.children[0];
+        if (child) {
+          if (child.tagName === 'div'.toUpperCase()) {
+            time += 1;
+            const { num, } = this;
+            if (time === num) {
+              ans = true;
+              break;
+            }
+          }
+        }
+      }
+    }
+    return ans;
   }
 
   addItem(t) {
     const { ul, id, } = this;
     const idx = this.getIndex();
-    const d = this.props.data[idx];
-    if (d !== undefined) {
-      this.idx = idx;
-      const id = this.getKey(idx);
-      const component = <div>{d}</div>;
-      const node = renderToNode(<li id={id} />);
-      switch (t) {
-        case 2: {
-          ul.append(node);
-          break;
+    if (idx >= 0 && idx < this.props.data.length) {
+      const d = this.props.data[idx];
+      if (idx < 0) {
+        this.setType('l');
+      }
+      if (idx > this.props.data.length - 1) {
+        this.setType('r');
+      }
+      if (d !== undefined) {
+        this.idx = idx;
+        const id = this.getKey(idx);
+        this.key = id;
+        const component = <div>{d}</div>;
+        const node = renderToNode(<li id={id} />);
+        switch (t) {
+          case 2: {
+            ul.append(node);
+            this.left = undefined;
+            this.right = undefined;
+            break;
+          }
+          case 1: {
+            ul.append(node);
+            this.right = idx;
+            break;
+          }
+          case 0: {
+            ul.prepend(node);
+            this.left = idx;
+            break;
+          }
         }
+        this.li = document.getElementById(id);
+        const { li, } = this;
+        this.renderElement(li, component, id);
+        this.isUpdate = true;
+        this.num += 1;
+      } else {
+        this.isUpdate = false;
+      }
+    }
+  }
+
+  async setLocation(location) {
+    const { ul, } = this;
+    ul.innerHTML = '';
+    this.clean();
+    this.location = location;
+    this.type = 0;
+    this.num = 0;
+    this.count = 0;
+    this.addItem(2);
+    this.count += 1;
+    ul.style.visibility = 'hidden';
+    while (true) {
+      const { count, } = this;
+      this.r = count % 2;
+      const { r, } = this;
+      const { num, } = this;
+      if (num > this.props.data.length - 1) {
+        break;
+      }
+      if (this.type === 3) {
+        break;
+      }
+      this.addItem(r);
+      const flag = await this.detectEdge();
+      if (flag) {
+        break;
+      }
+      this.count += 1;
+    }
+    await check(this.checkButtons);
+    this.clearEmpty();
+    ul.style.visibility = 'visible';
+  }
+
+  clearEmpty() {
+    const { ul, } = this;
+    for (const child of ul.children) {
+      if (child.tagName === 'li'.toUpperCase()) {
+        const button = child.children[0];
+        if (button === undefined) {
+          child.remove();
+        }
+      }
+    }
+  }
+
+  async detectEdge() {
+    let ans = false;;
+    const { r, idx, isUpdate, } = this;
+    if (idx !== undefined && isUpdate) {
+      switch (r) {
         case 1: {
-          ul.append(node);
-          this.right = idx;
+          const { right, } = this;
+          if (right !== undefined) {
+            const right = await this.getRight(this.key);
+            if (right > this.width || right === 0) {
+              ans = true;
+              const { li, } = this;
+              li.remove();
+              this.num -= 1;
+              this.right = this.idx - 1;
+            }
+          }
           break;
         }
         case 0: {
-          ul.prepend(node);
-          this.left = idx;
+          const { left, }= this;
+          if (left !== undefined) {
+            const left = await this.getLeft(this.key);
+            if (left < this.left || left === 0) {
+              ans = true;
+              const { li, } = this;
+              li.remove();
+              this.num -= 1;
+              this.left = this.idx + 1;
+            }
+          }
           break;
         }
       }
-      this.li = document.getElementById(id);
-      const { li, } = this;
-      if (li) {
-        const root = ReactDOM.createRoot(li);
-        root.render(component);
+    }
+    return ans;
+  }
+
+  renderElement(container, component, id) {
+    if (container) {
+      const { roots, } = this;
+      let root;
+      if (roots[id] === undefined) {
+        root = ReactDOM.createRoot(container);
+      } else {
+        root = roots[id];
       }
-      this.isUpdate = true;
-    } else {
-      this.isUpdate = false;
+      root.render(component);
     }
   }
+
 
   render() {
     const { id, } = this;

@@ -9,30 +9,45 @@ class PointStaticLine extends PointLine {
   }
 
   addItem(t) {
-    const { ul, template, id, } = this;
+    const { ul, id, } = this;
     const idx = this.getIndex();
-    const d = this.props.data[idx];
-    if (d !== undefined) {
-      this.idx = idx;
-      const li = renderToNode(<li id={this.getKey(idx)} key={idx}>{d}</li>);
-      switch (t) {
-        case 2: {
-          ul.append(li);
-          break;
-        }
-        case 1: {
-          ul.append(li);
-          break;
-        }
-        case 0: {
-          ul.prepend(li);
-          break;
-        }
+    if (idx >= 0 && idx < this.props.data.length) {
+      const d = this.props.data[idx];
+      if (idx < 0) {
+        this.setType('l');
       }
-      this.li = li;
-      this.isUpdate = true;
-    } else {
-      this.isUpdate = false;
+      if (idx > this.props.data.length - 1) {
+        this.setType('r');
+      }
+      if (d !== undefined) {
+        this.idx = idx;
+        const id = this.getKey(idx);
+        this.key = id;
+        const li = renderToNode(<li id={this.getKey(idx)} key={idx}>{d}</li>);
+        switch (t) {
+          case 2: {
+            ul.append(li);
+            global.left = undefined;
+            global.rigth = undefined;
+            break;
+          }
+          case 1: {
+            ul.append(li);
+            global.right = idx;
+            break;
+          }
+          case 0: {
+            ul.prepend(li);
+            global.left = idx;
+            break;
+          }
+        }
+        this.li = li;
+        this.isUpdate = true;
+        this.num += 1;
+      } else {
+        this.isUpdate = false;
+      }
     }
   }
 
