@@ -14,7 +14,7 @@ class RegionList extends React.Component {
     this.dealScroll = this.dealScroll.bind(this);
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     const { id, } = this;
 
     const ul = document.getElementById(id);
@@ -29,9 +29,9 @@ class RegionList extends React.Component {
       scrollTop: ul.scrollTop,
     };
     this.status = status;
-    this.initLast();
+    await this.initLast();
     this.bindEvent();
-    this.updateView('d');
+    await this.updateView('d');
   }
 
   async dealScroll(e) {
