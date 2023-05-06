@@ -1,9 +1,9 @@
 {
-  "name": "drip-ui",
+  "name": "drip-ui-lib",
   "version": "1.0.0",
-  "description": "Drip ui project.",
+  "description": "Drip ui library.",
   "main": "index.js",
-  "author": "Eric Hart",
+  "author": "Leo Brad",
   "license": "MIT",
   "scripts": {
     "lint": "eslint ./src",
